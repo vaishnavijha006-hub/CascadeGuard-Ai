@@ -4,7 +4,10 @@ import networkx as nx
 try:
     from backend.services.cascade_engine import simulate_cascade, load_dependency_graph
 except ImportError:
-    from cascade_engine import simulate_cascade, load_dependency_graph
+    try:
+        from services.cascade_engine import simulate_cascade, load_dependency_graph
+    except ImportError:
+        from cascade_engine import simulate_cascade, load_dependency_graph
 
 
 
