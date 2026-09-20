@@ -1,0 +1,77 @@
+{
+  "_metadata": {
+    "is_synthetic": true,
+    "data_type": "synthetic_demo",
+    "description": "SYNTHETIC DEMO DATA ONLY - CONTAINS NO REAL INFRASTRUCTURE INFORMATION"
+  },
+  "nodes": [
+    {
+      "id": "sldc",
+      "label": "State Load Dispatch Center",
+      "sector": "Energy",
+      "criticality": 5
+    },
+    {
+      "id": "hospital",
+      "label": "Hospital IT",
+      "sector": "Healthcare",
+      "criticality": 5
+    },
+    {
+      "id": "emergency",
+      "label": "Emergency Services",
+      "sector": "Emergency Services",
+      "criticality": 5
+    },
+    {
+      "id": "ambulance",
+      "label": "Ambulance Services",
+      "sector": "Emergency Services",
+      "criticality": 4
+    },
+    {
+      "id": "water",
+      "label": "Municipal Water SCADA",
+      "sector": "Water",
+      "criticality": 4
+    },
+    {
+      "id": "datacenter",
+      "label": "State Data Center",
+      "sector": "IT & Telecommunications",
+      "criticality": 5
+    },
+    {
+      "id": "government",
+      "label": "Government Services",
+      "sector": "Government",
+      "criticality": 3
+    }
+  ],
+  "dependencies": [
+    {
+      "source": "sldc",
+      "target": "hospital"
+    },
+    {
+      "source": "sldc",
+      "target": "water"
+    },
+    {
+      "source": "sldc",
+      "target": "datacenter"
+    },
+    {
+      "source": "hospital",
+      "target": "emergency"
+    },
+    {
+      "source": "emergency",
+      "target": "ambulance"
+    },
+    {
+      "source": "datacenter",
+      "target": "government"
+    }
+  ]
+}
