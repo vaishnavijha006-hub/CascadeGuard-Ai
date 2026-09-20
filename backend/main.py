@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -19,6 +20,10 @@ origins = [
     "http://127.0.0.1:3000",
     "http://127.0.0.1:3001",
 ]
+
+frontend_url = os.getenv("FRONTEND_URL")
+if frontend_url and frontend_url not in origins:
+    origins.append(frontend_url)
 
 app.add_middleware(
     CORSMiddleware,
