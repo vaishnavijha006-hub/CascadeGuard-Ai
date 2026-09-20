@@ -11,7 +11,6 @@ import ReactFlow, {
   type Edge,
   type NodeTypes,
 } from 'reactflow';
-import 'reactflow/dist/style.css';
 import type { ApiNode, ApiEdge } from '@/lib/types';
 import {
   Loader2,
@@ -134,8 +133,8 @@ function CascadeCustomNode({ data }: { data: CustomNodeData }) {
 const nodeTypes: NodeTypes = { cascadeNode: CascadeCustomNode };
 
 export function CascadeMap({
-  nodes: apiNodes = [],
-  edges: apiEdges = [],
+  nodes = [],
+  edges = [],
   affectedNodeIds = [],
   criticalNodeIds = [],
   originNodeId = null,
@@ -145,10 +144,15 @@ export function CascadeMap({
 }: CascadeMapProps) {
   const [modalNode, setModalNode] = useState<ApiNode | null>(null);
 
-  const affectedSet = new Set(affectedNodeIds);
-  const criticalSet = new Set(criticalNodeIds);
+  const safeNodes = Array.isArray(nodes) ? nodes : [];
+  const safeEdges = Array.isArray(edges) ? edges : [];
+  const safeAffected = Array.isArray(affectedNodeIds) ? affectedNodeIds : [];
+  const safeCritical = Array.isArray(criticalNodeIds) ? criticalNodeIds : [];
 
-  const flowNodes: Node[] = apiNodes.map((n, idx) => {
+  const affectedSet = new Set(safeAffected);
+  const criticalSet = new Set(safeCritical);
+
+  const flowNodes: Node[] = safeNodes.map((n, idx) => {
     const pos = NODE_POSITIONS[n.id] ?? { x: (idx % 3) * 260 + 80, y: Math.floor(idx / 3) * 150 + 50 };
     return {
       id: n.id,
@@ -167,7 +171,7 @@ export function CascadeMap({
     };
   });
 
-  const flowEdges: Edge[] = apiEdges.map((e, idx) => {
+  const flowEdges: Edge[] = safeEdges.map((e, idx) => {
     const isEdgeActive = affectedSet.has(e.source) && affectedSet.has(e.target);
     const isSourceCritical = criticalSet.has(e.source);
 
@@ -198,7 +202,7 @@ export function CascadeMap({
 
   const handleNodeClickInternal = (nodeId: string) => {
     onNodeClick?.(nodeId);
-    const target = apiNodes.find((n) => n.id === nodeId);
+    const target = safeNodes.find((n) => n.id === nodeId);
     if (target) setModalNode(target);
   };
 
