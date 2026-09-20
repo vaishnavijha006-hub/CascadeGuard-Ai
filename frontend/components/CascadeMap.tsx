@@ -5,7 +5,6 @@ import ReactFlow, {
   Background,
   BackgroundVariant,
   Controls,
-  MiniMap,
   MarkerType,
   type Node,
   type Edge,
@@ -20,8 +19,8 @@ import {
   X,
   Building2,
   Activity,
-  Layers,
   CheckCircle2,
+  Share2,
 } from 'lucide-react';
 
 interface CascadeMapProps {
@@ -46,14 +45,15 @@ interface CustomNodeData {
   selected: boolean;
 }
 
+// Tree Coordinates ensuring 100% visible layout without clipping or edge overlap
 const NODE_POSITIONS: Record<string, { x: number; y: number }> = {
-  sldc: { x: 380, y: 30 },
-  hospital: { x: 100, y: 170 },
-  water: { x: 380, y: 170 },
-  datacenter: { x: 660, y: 170 },
-  emergency: { x: 100, y: 310 },
-  government: { x: 660, y: 310 },
-  ambulance: { x: 100, y: 450 },
+  sldc: { x: 380, y: 25 },
+  hospital: { x: 90, y: 160 },
+  water: { x: 380, y: 160 },
+  datacenter: { x: 670, y: 160 },
+  emergency: { x: 90, y: 295 },
+  government: { x: 670, y: 295 },
+  ambulance: { x: 90, y: 430 },
 };
 
 function CascadeCustomNode({ data }: { data: CustomNodeData }) {
@@ -85,7 +85,7 @@ function CascadeCustomNode({ data }: { data: CustomNodeData }) {
 
   return (
     <div
-      className="relative min-w-[210px] rounded-xl border px-4 py-3 shadow-xl backdrop-blur-md transition-all duration-300"
+      className="relative min-w-[220px] rounded-xl border px-4 py-3.5 shadow-xl backdrop-blur-md transition-all duration-300"
       style={{
         borderColor: data.selected ? '#38bdf8' : borderColor,
         backgroundColor: bgColor,
@@ -110,7 +110,7 @@ function CascadeCustomNode({ data }: { data: CustomNodeData }) {
             {data.label}
           </span>
         </div>
-        <span className="rounded bg-background/70 px-1.5 py-0.5 text-[9px] font-mono font-bold text-muted-foreground border border-white/10">
+        <span className="rounded bg-background/80 px-1.5 py-0.5 text-[9px] font-mono font-bold text-muted-foreground border border-white/10">
           Level {data.criticality}
         </span>
       </div>
@@ -207,7 +207,7 @@ export function CascadeMap({
   };
 
   return (
-    <div className="relative flex flex-col h-[560px] w-full overflow-hidden rounded-xl border border-border bg-background shadow-xl">
+    <div className="relative flex flex-col h-[530px] lg:h-[550px] min-h-[480px] w-full overflow-hidden rounded-xl border border-border bg-background shadow-xl">
       {/* Prominent Section Header Banner */}
       <div className="flex items-center justify-between border-b border-border bg-card/90 px-4 py-3 backdrop-blur-md">
         <div className="flex items-center gap-2.5">
@@ -222,16 +222,22 @@ export function CascadeMap({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {affectedNodeIds.length > 0 ? (
+        <div className="flex items-center gap-2.5">
+          {/* Dynamic Backend Count Badge (7 NODES • 6 DEPENDENCIES) */}
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-secondary/80 px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider text-primary">
+            <Share2 className="h-3 w-3 text-primary" />
+            {safeNodes.length} NODES • {safeEdges.length} DEPENDENCIES
+          </span>
+
+          {safeAffected.length > 0 ? (
             <span className="inline-flex items-center gap-1.5 rounded-md border border-rose-500/40 bg-rose-500/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-rose-400">
               <span className="h-2 w-2 rounded-full bg-rose-500 animate-ping" />
-              Cascade Active ({affectedNodeIds.length} Nodes)
+              Cascade Active ({safeAffected.length} Affected)
             </span>
           ) : (
             <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background/60 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
               <CheckCircle2 className="h-3 w-3 text-emerald-400" />
-              Graph Baseline Ready
+              Baseline Ready
             </span>
           )}
         </div>
@@ -252,7 +258,7 @@ export function CascadeMap({
             edges={flowEdges}
             nodeTypes={nodeTypes}
             fitView
-            fitViewOptions={{ padding: 0.22 }}
+            fitViewOptions={{ padding: 0.18 }}
             proOptions={{ hideAttribution: true }}
             nodesDraggable
             zoomOnScroll
@@ -267,49 +273,10 @@ export function CascadeMap({
             />
             <Controls
               showInteractive={false}
-              className="!rounded-lg !border !border-border !bg-card !shadow-md"
-            />
-            <MiniMap
-              pannable
-              zoomable
-              nodeColor={(n) => {
-                const d = n.data as CustomNodeData;
-                if (d.isOrigin) return '#38bdf8';
-                if (d.isCritical && d.isAffected) return '#f43f5e';
-                if (d.isAffected) return '#f59e0b';
-                return '#475569';
-              }}
-              maskColor="rgba(15, 23, 42, 0.8)"
+              className="!top-3 !left-3 !bottom-auto !rounded-lg !border !border-border !bg-card !shadow-md"
             />
           </ReactFlow>
         )}
-
-        {/* Graph Legend Overlay */}
-        <div className="pointer-events-none absolute right-3 top-3 z-10 flex flex-col gap-1.5 rounded-lg border border-border bg-card/90 px-3.5 py-3 backdrop-blur-md shadow-md text-[10px]">
-          <span className="font-bold uppercase tracking-wider text-foreground border-b border-border pb-1 mb-0.5">
-            Graph Legend
-          </span>
-          <div className="flex items-center gap-2">
-            <Target className="h-3 w-3 text-sky-400" />
-            <span className="text-foreground font-medium">● Incident Origin</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-rose-500 animate-ping" />
-            <span className="text-foreground font-medium">● Critical Affected (L5)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-amber-500" />
-            <span className="text-foreground font-medium">● Cascade Affected</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-slate-500" />
-            <span className="text-muted-foreground">● Unaffected Node</span>
-          </div>
-          <div className="flex items-center gap-2 border-t border-border/60 pt-1 mt-0.5">
-            <span className="h-0.5 w-4 bg-amber-500" />
-            <span className="text-amber-400 font-semibold">~&gt; Propagation Path</span>
-          </div>
-        </div>
 
         {/* Node Detail Interactive Modal Panel */}
         {modalNode && (
@@ -367,6 +334,30 @@ export function CascadeMap({
             </div>
           </div>
         )}
+      </div>
+
+      {/* Compact Bottom Legend Bar (Requirement 8 - Never covers graph nodes) */}
+      <div className="flex flex-wrap items-center justify-center gap-5 border-t border-border bg-card/90 px-4 py-2 text-[10px] backdrop-blur-md">
+        <div className="flex items-center gap-1.5">
+          <Target className="h-3 w-3 text-sky-400" />
+          <span className="font-medium text-foreground">Incident Origin</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-rose-500 animate-ping" />
+          <span className="font-medium text-rose-400">Critical Affected (L5)</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-amber-500" />
+          <span className="font-medium text-amber-400">Cascade Affected</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-slate-500" />
+          <span className="text-muted-foreground">Unaffected Node</span>
+        </div>
+        <div className="flex items-center gap-1.5 border-l border-border/60 pl-4">
+          <span className="h-0.5 w-3 bg-amber-500" />
+          <span className="font-mono text-amber-400 font-semibold">~&gt; Propagation Path</span>
+        </div>
       </div>
     </div>
   );
