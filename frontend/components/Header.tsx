@@ -1,17 +1,113 @@
 'use client';
 
-import { ShieldCheck, Radio } from 'lucide-react';
+import { ShieldCheck, Radio, AlertTriangle, CheckCircle2, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+export type BackendStatus = 'checking' | 'online' | 'offline';
+export type AnalysisStatus =
+  | 'loading_graph'
+  | 'baseline_ready'
+  | 'analyzing'
+  | 'incident_analyzed'
+  | 'graph_error'
+  | 'analysis_error';
+
 interface HeaderProps {
-  simulationActive?: boolean;
-  actionCount?: number;
+  backendStatus?: BackendStatus;
+  analysisStatus?: AnalysisStatus;
+  nodeCount?: number;
+  edgeCount?: number;
 }
 
 export function Header({
-  simulationActive = false,
-  actionCount = 0,
+  backendStatus = 'checking',
+  analysisStatus = 'loading_graph',
+  nodeCount = 0,
+  edgeCount = 0,
 }: HeaderProps) {
+  // Config for the Analysis / Graph Status Indicator (First indicator)
+  const getAnalysisConfig = () => {
+    switch (analysisStatus) {
+      case 'loading_graph':
+        return {
+          label: 'LOADING GRAPH',
+          dotColor: 'bg-amber-400 animate-pulse',
+          borderColor: 'border-amber-500/40 bg-amber-500/10',
+          textColor: 'text-amber-400',
+        };
+      case 'analyzing':
+        return {
+          label: 'ANALYZING INCIDENT',
+          dotColor: 'bg-amber-400 animate-ping',
+          borderColor: 'border-amber-500/50 bg-amber-500/20',
+          textColor: 'text-amber-400',
+        };
+      case 'incident_analyzed':
+        return {
+          label: 'INCIDENT ANALYZED',
+          dotColor: 'bg-sky-400',
+          borderColor: 'border-sky-500/40 bg-sky-500/15',
+          textColor: 'text-sky-400',
+        };
+      case 'graph_error':
+        return {
+          label: 'GRAPH ERROR',
+          dotColor: 'bg-rose-500',
+          borderColor: 'border-rose-500/50 bg-rose-500/15',
+          textColor: 'text-rose-400',
+        };
+      case 'analysis_error':
+        return {
+          label: 'ANALYSIS ERROR',
+          dotColor: 'bg-rose-500',
+          borderColor: 'border-rose-500/50 bg-rose-500/15',
+          textColor: 'text-rose-400',
+        };
+      case 'baseline_ready':
+      default:
+        return {
+          label: 'BASELINE READY',
+          dotColor: 'bg-emerald-400',
+          borderColor: 'border-emerald-500/40 bg-emerald-500/10',
+          textColor: 'text-emerald-400',
+        };
+    }
+  };
+
+  // Config for the System / Backend Connectivity Indicator (Second indicator)
+  const getBackendConfig = () => {
+    switch (backendStatus) {
+      case 'checking':
+        return {
+          label: 'CONNECTING',
+          dotColor: 'bg-amber-400 animate-pulse',
+          borderColor: 'border-amber-500/40 bg-amber-500/10',
+          textColor: 'text-amber-400',
+          icon: <RefreshCw className="ml-0.5 h-3 w-3 animate-spin text-amber-400" />,
+        };
+      case 'offline':
+        return {
+          label: 'BACKEND OFFLINE',
+          dotColor: 'bg-rose-500',
+          borderColor: 'border-rose-500/50 bg-rose-500/15',
+          textColor: 'text-rose-400',
+          icon: <AlertTriangle className="ml-0.5 h-3 w-3 text-rose-400" />,
+        };
+      case 'online':
+      default:
+        return {
+          label: 'SYSTEM READY',
+          dotColor: 'bg-emerald-400',
+          borderColor: 'border-emerald-500/40 bg-emerald-500/10',
+          textColor: 'text-emerald-400',
+          icon: <Radio className="ml-0.5 h-3 w-3 text-emerald-400" />,
+        };
+    }
+  };
+
+  const analysisConfig = getAnalysisConfig();
+  const backendConfig = getBackendConfig();
+
   return (
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-card/60 px-4 backdrop-blur-sm md:px-6">
       <div className="flex items-center gap-3">
@@ -29,45 +125,45 @@ export function Header({
       </div>
 
       <div className="flex items-center gap-3">
-        {/* Analysis state indicator */}
+        {/* Indicator 1: Functional Baseline / Incident Analysis Indicator */}
         <div
           className={cn(
-            'flex items-center gap-1.5 rounded border px-2.5 py-1.5',
-            simulationActive
-              ? 'border-primary/40 bg-primary/10'
-              : 'border-border bg-background/60'
+            'flex items-center gap-2 rounded border px-3 py-1.5 transition-all duration-300',
+            analysisConfig.borderColor
           )}
         >
+          <span className={cn('h-2 w-2 rounded-full', analysisConfig.dotColor)} />
           <span
             className={cn(
-              'h-2 w-2 rounded-full',
-              simulationActive ? 'bg-primary' : 'bg-risk-low'
-            )}
-          />
-          <span
-            className={cn(
-              'text-[10px] font-medium uppercase tracking-[0.15em]',
-              simulationActive ? 'text-primary' : 'text-muted-foreground'
+              'text-[10px] font-semibold uppercase tracking-[0.15em]',
+              analysisConfig.textColor
             )}
           >
-            {simulationActive
-              ? `Simulated Intervention${actionCount > 0 ? ` · ${actionCount} action${actionCount > 1 ? 's' : ''}` : ''}`
-              : 'Baseline Analysis'}
+            {analysisConfig.label}
           </span>
         </div>
 
         <span className="hidden rounded border border-primary/30 bg-primary/10 px-2 py-1 text-[10px] font-medium uppercase tracking-[0.15em] text-primary sm:inline-block">
           Simulation Mode
         </span>
-        <div className="flex items-center gap-1.5 rounded border border-border bg-background/60 px-2.5 py-1.5">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-pulse-ring rounded-full bg-risk-low" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-risk-low" />
+
+        {/* Indicator 2: Functional Backend System Health Indicator */}
+        <div
+          className={cn(
+            'flex items-center gap-2 rounded border px-3 py-1.5 transition-all duration-300',
+            backendConfig.borderColor
+          )}
+        >
+          <span className={cn('h-2 w-2 rounded-full', backendConfig.dotColor)} />
+          <span
+            className={cn(
+              'text-[10px] font-semibold uppercase tracking-[0.15em]',
+              backendConfig.textColor
+            )}
+          >
+            {backendConfig.label}
           </span>
-          <span className="text-[10px] font-medium uppercase tracking-[0.15em] text-muted-foreground">
-            System Ready
-          </span>
-          <Radio className="ml-0.5 h-3 w-3 text-muted-foreground" />
+          {backendConfig.icon}
         </div>
       </div>
     </header>

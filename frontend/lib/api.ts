@@ -7,6 +7,28 @@ import type {
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
 /**
+ * Fetches the backend system health status.
+ * Endpoint: GET /health
+ */
+export async function getHealth(): Promise<{ status: string; service?: string }> {
+  const url = `${API_BASE_URL}/health`;
+  try {
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: Backend health check failed`);
+    }
+
+    return await res.json();
+  } catch (err: any) {
+    throw new Error('Backend health service unreachable.');
+  }
+}
+
+/**
  * Fetches the complete dependency graph from the backend.
  * Endpoint: GET /api/graph
  */

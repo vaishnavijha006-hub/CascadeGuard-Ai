@@ -1,18 +1,23 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Header } from '@/components/Header';
+import { Header, type BackendStatus, type AnalysisStatus } from '@/components/Header';
 import { IncidentForm } from '@/components/Sidebar/IncidentForm';
 import { KpiCards } from '@/components/KpiCards';
 import { CascadeMap } from '@/components/CascadeMap';
 import { BriefPanel } from '@/components/BriefPanel';
-import { getGraph, analyzeIncident } from '@/lib/api';
+import { getHealth, getGraph, analyzeIncident } from '@/lib/api';
 import type { ApiGraphResponse, IncidentAnalyzeResponse } from '@/lib/types';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 
 export default function Page() {
+  // Real API lifecycle states for top-right indicators
+  const [backendStatus, setBackendStatus] = useState<BackendStatus>('checking');
+  const [analysisStatus, setAnalysisStatus] = useState<AnalysisStatus>('loading_graph');
+
+  // Backend API data states
   const [graphData, setGraphData] = useState<ApiGraphResponse | null>(null);
   const [graphLoading, setGraphLoading] = useState<boolean>(true);
   const [graphError, setGraphError] = useState<string | null>(null);
@@ -23,15 +28,38 @@ export default function Page() {
 
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
-  // 1. Load Dependency Graph on mount from GET /api/graph
+  // 1. Functional Backend Health Check on mount (GET /health)
+  const checkBackendHealth = useCallback(async () => {
+    setBackendStatus('checking');
+    try {
+      const res = await getHealth();
+      if (res.status === 'ok') {
+        setBackendStatus('online');
+      } else {
+        setBackendStatus('offline');
+      }
+    } catch {
+      setBackendStatus('offline');
+    }
+  }, []);
+
+  useEffect(() => {
+    checkBackendHealth();
+  }, [checkBackendHealth]);
+
+  // 2. Functional Dependency Graph Fetch on mount (GET /api/graph)
   const loadGraph = useCallback(async () => {
     setGraphLoading(true);
     setGraphError(null);
+    setAnalysisStatus('loading_graph');
     try {
       const data = await getGraph();
       setGraphData(data);
+      setAnalysisStatus('baseline_ready');
     } catch (err: any) {
-      setGraphError(err.message || 'Unable to connect to CascadeGuard backend.');
+      const msg = err.message || 'Unable to connect to CascadeGuard backend.';
+      setGraphError(msg);
+      setAnalysisStatus('graph_error');
     } finally {
       setGraphLoading(false);
     }
@@ -41,7 +69,7 @@ export default function Page() {
     loadGraph();
   }, [loadGraph]);
 
-  // 2. Execute Incident Analysis via POST /api/incident/analyze
+  // 3. Functional Incident Analysis Execution (POST /api/incident/analyze)
   const handleAnalyze = useCallback(
     async (requestData: {
       incident_type: string;
@@ -50,6 +78,7 @@ export default function Page() {
     }) => {
       setAnalyzing(true);
       setAnalysisError(null);
+      setAnalysisStatus('analyzing');
       setSelectedNodeId(requestData.start_node);
 
       try {
@@ -59,14 +88,24 @@ export default function Page() {
           start_node: requestData.start_node,
         });
         setAnalysis(result);
+        setAnalysisStatus('incident_analyzed');
       } catch (err: any) {
-        setAnalysisError(err.message || 'An unexpected error occurred during incident analysis.');
+        const msg = err.message || 'An unexpected error occurred during incident analysis.';
+        setAnalysisError(msg);
+        setAnalysisStatus('analysis_error');
       } finally {
         setAnalyzing(false);
       }
     },
     []
   );
+
+  // 4. Reset behavior when input changes before running new analysis
+  const handleInputChange = useCallback(() => {
+    if (analysisStatus === 'incident_analyzed' || analysisStatus === 'analysis_error') {
+      setAnalysisStatus('baseline_ready');
+    }
+  }, [analysisStatus]);
 
   const affectedNodeIds = useMemo(
     () => analysis?.cascade.affected_nodes ?? [],
@@ -85,7 +124,13 @@ export default function Page() {
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-background text-foreground">
-      <Header />
+      {/* Dynamic Header with functional real-time indicators */}
+      <Header
+        backendStatus={backendStatus}
+        analysisStatus={analysisStatus}
+        nodeCount={graphData?.nodes.length ?? 0}
+        edgeCount={graphData?.edges.length ?? 0}
+      />
 
       <div className="flex flex-1 overflow-hidden">
         {/* Left Control Sidebar */}
@@ -95,6 +140,7 @@ export default function Page() {
             loading={graphLoading}
             analyzing={analyzing}
             onAnalyze={handleAnalyze}
+            onInputChange={handleInputChange}
           />
         </div>
 
@@ -110,7 +156,10 @@ export default function Page() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={loadGraph}
+                  onClick={() => {
+                    checkBackendHealth();
+                    loadGraph();
+                  }}
                   className="h-7 border-rose-500/40 text-rose-300 hover:bg-rose-500/20 gap-1.5"
                 >
                   <RefreshCw className="h-3 w-3" /> Retry Connection

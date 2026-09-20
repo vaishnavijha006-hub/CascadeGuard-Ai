@@ -22,6 +22,7 @@ interface IncidentFormProps {
     incident_description: string;
     start_node: string;
   }) => void;
+  onInputChange?: () => void;
 }
 
 export function IncidentForm({
@@ -29,6 +30,7 @@ export function IncidentForm({
   loading = false,
   analyzing = false,
   onAnalyze,
+  onInputChange,
 }: IncidentFormProps) {
   const [incidentType, setIncidentType] = useState<string>('Power Failure');
   const [incidentDescription, setIncidentDescription] = useState<string>(
@@ -44,6 +46,21 @@ export function IncidentForm({
   }, [nodes, selectedStartNode]);
 
   const currentNode = nodes.find((n) => n.id === selectedStartNode);
+
+  function handleTypeChange(val: string) {
+    setIncidentType(val);
+    onInputChange?.();
+  }
+
+  function handleDescriptionChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setIncidentDescription(e.target.value);
+    onInputChange?.();
+  }
+
+  function handleNodeChange(val: string) {
+    setSelectedStartNode(val);
+    onInputChange?.();
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -81,7 +98,7 @@ export function IncidentForm({
             </label>
             <Select
               value={incidentType}
-              onValueChange={setIncidentType}
+              onValueChange={handleTypeChange}
               disabled={loading || analyzing}
             >
               <SelectTrigger className="bg-background/60">
@@ -104,7 +121,7 @@ export function IncidentForm({
             </label>
             <Input
               value={incidentDescription}
-              onChange={(e) => setIncidentDescription(e.target.value)}
+              onChange={handleDescriptionChange}
               placeholder="e.g. Power failure at hospital feeder"
               disabled={loading || analyzing}
               className="bg-background/60 text-xs"
@@ -119,7 +136,7 @@ export function IncidentForm({
             </label>
             <Select
               value={selectedStartNode}
-              onValueChange={setSelectedStartNode}
+              onValueChange={handleNodeChange}
               disabled={loading || analyzing || nodes.length === 0}
             >
               <SelectTrigger className="bg-background/60">
@@ -152,22 +169,22 @@ export function IncidentForm({
           </div>
         </div>
 
-        {/* Action Button */}
-        <div className="mt-6 pt-4 border-t border-border">
+        {/* Submit Button */}
+        <div className="pt-4 border-t border-border mt-auto">
           <Button
             type="submit"
-            disabled={loading || analyzing || nodes.length === 0}
-            className="w-full gap-2 bg-primary font-semibold text-primary-foreground hover:bg-primary/90 shadow-md"
+            disabled={loading || analyzing || !incidentType || !incidentDescription || !selectedStartNode}
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase tracking-wider h-10 gap-2 shadow-lg shadow-primary/20"
           >
             {analyzing ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Analyzing cascade…
+                Simulating Cascade…
               </>
             ) : (
               <>
-                <Zap className="h-4 w-4 fill-current" />
-                ANALYZE INCIDENT
+                <Zap className="h-4 w-4 fill-primary-foreground" />
+                Analyze Incident
               </>
             )}
           </Button>
