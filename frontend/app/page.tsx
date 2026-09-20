@@ -78,6 +78,11 @@ export default function Page() {
     [analysis]
   );
 
+  const originNodeId = useMemo(
+    () => analysis?.incident.start_node ?? selectedNodeId,
+    [analysis, selectedNodeId]
+  );
+
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-background text-foreground">
       <Header />
@@ -128,12 +133,13 @@ export default function Page() {
           {/* 1. Risk KPI Overview Cards */}
           <KpiCards analysis={analysis} loading={analyzing} />
 
-          {/* 2. Interactive Dependency Cascade Map */}
+          {/* 2. PROMINENT DEPENDENCY & CASCADE MAP */}
           <CascadeMap
             nodes={graphData?.nodes ?? []}
             edges={graphData?.edges ?? []}
             affectedNodeIds={affectedNodeIds}
             criticalNodeIds={criticalNodeIds}
+            originNodeId={originNodeId}
             loading={graphLoading}
             selectedNodeId={selectedNodeId}
             onNodeClick={(id) => setSelectedNodeId(id)}
