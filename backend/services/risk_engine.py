@@ -1,13 +1,20 @@
+import sys
+from pathlib import Path
 from typing import Dict, Any, List, Optional
 import networkx as nx
 
+# Ensure services directory is in sys.path
+services_dir = Path(__file__).resolve().parent
+if str(services_dir) not in sys.path:
+    sys.path.insert(0, str(services_dir))
+
 try:
-    from backend.services.cascade_engine import simulate_cascade, load_dependency_graph
+    from cascade_engine import simulate_cascade, load_dependency_graph
 except ImportError:
     try:
         from services.cascade_engine import simulate_cascade, load_dependency_graph
     except ImportError:
-        from cascade_engine import simulate_cascade, load_dependency_graph
+        from backend.services.cascade_engine import simulate_cascade, load_dependency_graph
 
 
 
