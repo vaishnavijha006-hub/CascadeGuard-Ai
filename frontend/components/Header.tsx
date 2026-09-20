@@ -1,6 +1,6 @@
 'use client';
 
-import { ShieldCheck, Radio, AlertTriangle, CheckCircle2, RefreshCw } from 'lucide-react';
+import { ShieldCheck, Radio, AlertTriangle, RefreshCw, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export type BackendStatus = 'checking' | 'online' | 'offline';
@@ -17,6 +17,8 @@ interface HeaderProps {
   analysisStatus?: AnalysisStatus;
   nodeCount?: number;
   edgeCount?: number;
+  onCheckHealth?: () => void;
+  onRefreshGraph?: () => void;
 }
 
 export function Header({
@@ -24,6 +26,8 @@ export function Header({
   analysisStatus = 'loading_graph',
   nodeCount = 0,
   edgeCount = 0,
+  onCheckHealth,
+  onRefreshGraph,
 }: HeaderProps) {
   // Config for the Analysis / Graph Status Indicator (First indicator)
   const getAnalysisConfig = () => {
@@ -32,44 +36,50 @@ export function Header({
         return {
           label: 'LOADING GRAPH',
           dotColor: 'bg-amber-400 animate-pulse',
-          borderColor: 'border-amber-500/40 bg-amber-500/10',
+          borderColor: 'border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20',
           textColor: 'text-amber-400',
+          icon: <RefreshCw className="ml-0.5 h-3 w-3 animate-spin text-amber-400" />,
         };
       case 'analyzing':
         return {
           label: 'ANALYZING INCIDENT',
           dotColor: 'bg-amber-400 animate-ping',
-          borderColor: 'border-amber-500/50 bg-amber-500/20',
+          borderColor: 'border-amber-500/50 bg-amber-500/20 hover:bg-amber-500/30',
           textColor: 'text-amber-400',
+          icon: <Activity className="ml-0.5 h-3 w-3 animate-pulse text-amber-400" />,
         };
       case 'incident_analyzed':
         return {
           label: 'INCIDENT ANALYZED',
           dotColor: 'bg-sky-400',
-          borderColor: 'border-sky-500/40 bg-sky-500/15',
+          borderColor: 'border-sky-500/40 bg-sky-500/15 hover:bg-sky-500/25',
           textColor: 'text-sky-400',
+          icon: <Activity className="ml-0.5 h-3 w-3 text-sky-400" />,
         };
       case 'graph_error':
         return {
           label: 'GRAPH ERROR',
           dotColor: 'bg-rose-500',
-          borderColor: 'border-rose-500/50 bg-rose-500/15',
+          borderColor: 'border-rose-500/50 bg-rose-500/15 hover:bg-rose-500/25',
           textColor: 'text-rose-400',
+          icon: <AlertTriangle className="ml-0.5 h-3 w-3 text-rose-400" />,
         };
       case 'analysis_error':
         return {
           label: 'ANALYSIS ERROR',
           dotColor: 'bg-rose-500',
-          borderColor: 'border-rose-500/50 bg-rose-500/15',
+          borderColor: 'border-rose-500/50 bg-rose-500/15 hover:bg-rose-500/25',
           textColor: 'text-rose-400',
+          icon: <AlertTriangle className="ml-0.5 h-3 w-3 text-rose-400" />,
         };
       case 'baseline_ready':
       default:
         return {
           label: 'BASELINE READY',
           dotColor: 'bg-emerald-400',
-          borderColor: 'border-emerald-500/40 bg-emerald-500/10',
+          borderColor: 'border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20',
           textColor: 'text-emerald-400',
+          icon: <Activity className="ml-0.5 h-3 w-3 text-emerald-400" />,
         };
     }
   };
@@ -81,7 +91,7 @@ export function Header({
         return {
           label: 'CONNECTING',
           dotColor: 'bg-amber-400 animate-pulse',
-          borderColor: 'border-amber-500/40 bg-amber-500/10',
+          borderColor: 'border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20',
           textColor: 'text-amber-400',
           icon: <RefreshCw className="ml-0.5 h-3 w-3 animate-spin text-amber-400" />,
         };
@@ -89,7 +99,7 @@ export function Header({
         return {
           label: 'BACKEND OFFLINE',
           dotColor: 'bg-rose-500',
-          borderColor: 'border-rose-500/50 bg-rose-500/15',
+          borderColor: 'border-rose-500/50 bg-rose-500/15 hover:bg-rose-500/25',
           textColor: 'text-rose-400',
           icon: <AlertTriangle className="ml-0.5 h-3 w-3 text-rose-400" />,
         };
@@ -98,7 +108,7 @@ export function Header({
         return {
           label: 'SYSTEM READY',
           dotColor: 'bg-emerald-400',
-          borderColor: 'border-emerald-500/40 bg-emerald-500/10',
+          borderColor: 'border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20',
           textColor: 'text-emerald-400',
           icon: <Radio className="ml-0.5 h-3 w-3 text-emerald-400" />,
         };
@@ -125,10 +135,13 @@ export function Header({
       </div>
 
       <div className="flex items-center gap-3">
-        {/* Indicator 1: Functional Baseline / Incident Analysis Indicator */}
-        <div
+        {/* Indicator 1: Interactive Analysis / Graph Status Indicator */}
+        <button
+          type="button"
+          onClick={onRefreshGraph}
+          title="Click to reload graph data from GET /api/graph"
           className={cn(
-            'flex items-center gap-2 rounded border px-3 py-1.5 transition-all duration-300',
+            'flex items-center gap-2 rounded border px-3 py-1.5 transition-all duration-300 cursor-pointer select-none',
             analysisConfig.borderColor
           )}
         >
@@ -141,16 +154,20 @@ export function Header({
           >
             {analysisConfig.label}
           </span>
-        </div>
+          {analysisConfig.icon}
+        </button>
 
         <span className="hidden rounded border border-primary/30 bg-primary/10 px-2 py-1 text-[10px] font-medium uppercase tracking-[0.15em] text-primary sm:inline-block">
           Simulation Mode
         </span>
 
-        {/* Indicator 2: Functional Backend System Health Indicator */}
-        <div
+        {/* Indicator 2: Interactive Backend System Health Indicator */}
+        <button
+          type="button"
+          onClick={onCheckHealth}
+          title="Click to check backend health via GET /health"
           className={cn(
-            'flex items-center gap-2 rounded border px-3 py-1.5 transition-all duration-300',
+            'flex items-center gap-2 rounded border px-3 py-1.5 transition-all duration-300 cursor-pointer select-none',
             backendConfig.borderColor
           )}
         >
@@ -164,7 +181,7 @@ export function Header({
             {backendConfig.label}
           </span>
           {backendConfig.icon}
-        </div>
+        </button>
       </div>
     </header>
   );

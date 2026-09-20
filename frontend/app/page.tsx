@@ -28,9 +28,8 @@ export default function Page() {
 
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
-  // 1. Functional Backend Health Check on mount (GET /health)
+  // 1. Functional Backend Health Check on mount & 10s polling interval (GET /health)
   const checkBackendHealth = useCallback(async () => {
-    setBackendStatus('checking');
     try {
       const res = await getHealth();
       if (res.status === 'ok') {
@@ -45,6 +44,11 @@ export default function Page() {
 
   useEffect(() => {
     checkBackendHealth();
+    // Continuous polling every 10 seconds to keep system readiness 100% accurate
+    const interval = setInterval(() => {
+      checkBackendHealth();
+    }, 10000);
+    return () => clearInterval(interval);
   }, [checkBackendHealth]);
 
   // 2. Functional Dependency Graph Fetch on mount (GET /api/graph)
@@ -130,6 +134,8 @@ export default function Page() {
         analysisStatus={analysisStatus}
         nodeCount={graphData?.nodes.length ?? 0}
         edgeCount={graphData?.edges.length ?? 0}
+        onCheckHealth={checkBackendHealth}
+        onRefreshGraph={loadGraph}
       />
 
       <div className="flex flex-1 overflow-hidden">
