@@ -1,0 +1,66 @@
+{
+  "incident": {
+    "type": "ransomware",
+    "severity": "high",
+    "source_id": "sldc"
+  },
+  "summary": {
+    "risk_score": 62,
+    "cascade_depth": 4,
+    "affected_nodes": 9,
+    "critical_nodes": 3,
+    "first_impact_min": 0
+  },
+  "nodes": [
+    { "id": "sldc", "risk": 0.95, "level": "critical", "impact_time_min": 0, "depth": 0, "why": "Initiating asset — ransomware directly compromises the State Load Dispatch Center control systems." },
+    { "id": "sub", "risk": 0.82, "level": "critical", "impact_time_min": 15, "depth": 1, "why": "Regional Substation depends on SLDC for load-balancing signals; loss of dispatch control degrades substation stability." },
+    { "id": "tel", "risk": 0.78, "level": "high", "impact_time_min": 20, "depth": 1, "why": "Telecom Exchange relies on SLDC power feed; without grid dispatch, backup generators must sustain exchange loads." },
+    { "id": "water", "risk": 0.68, "level": "high", "impact_time_min": 30, "depth": 1, "why": "Water Treatment Plant draws power from SLDC; treatment and dosing processes degrade without stable supply." },
+    { "id": "rail", "risk": 0.58, "level": "moderate", "impact_time_min": 40, "depth": 1, "why": "Rail Control Center depends on SLDC power and telecom signaling; partial loss of both reduces dispatchable capacity." },
+    { "id": "tower", "risk": 0.62, "level": "moderate", "impact_time_min": 35, "depth": 2, "why": "Mobile Tower Cluster depends on the Telecom Exchange for backhaul; exchange degradation reduces mobile coverage." },
+    { "id": "hos", "risk": 0.74, "level": "high", "impact_time_min": 45, "depth": 2, "why": "Regional Hospital depends on both power (via substation) and communications (via telecom exchange); loss of either threatens ICU and surgical loads." },
+    { "id": "pump", "risk": 0.48, "level": "moderate", "impact_time_min": 50, "depth": 2, "why": "Water Pump Network depends on the substation for power; reduced supply stability limits pumping throughput." },
+    { "id": "dc", "risk": 0.55, "level": "moderate", "impact_time_min": 50, "depth": 2, "why": "Government Data Center depends on telecom for WAN connectivity; loss of exchange links isolates regional services." },
+    { "id": "amb", "risk": 0.52, "level": "moderate", "impact_time_min": 65, "depth": 3, "why": "Ambulance Dispatch depends on hospital coordination and mobile tower coverage; degradation of both delays dispatch routing." },
+    { "id": "emg", "risk": 0.58, "level": "moderate", "impact_time_min": 80, "depth": 3, "why": "Emergency Operations Center depends on the data center for situational feeds; loss of data links reduces decision support." },
+    { "id": "bank", "risk": 0.41, "level": "low", "impact_time_min": 95, "depth": 4, "why": "Regional Bank depends on the data center for clearing and settlement; isolated WAN links slow but do not halt transactions." }
+  ],
+  "edges_active": ["e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9", "e10", "e11", "e12", "e13", "e14", "e15"],
+  "sector_impact": [
+    { "sector": "power", "avg_risk": 0.89 },
+    { "sector": "telecom", "avg_risk": 0.70 },
+    { "sector": "health", "avg_risk": 0.63 },
+    { "sector": "water", "avg_risk": 0.58 },
+    { "sector": "transport", "avg_risk": 0.58 },
+    { "sector": "data", "avg_risk": 0.55 },
+    { "sector": "public", "avg_risk": 0.58 },
+    { "sector": "finance", "avg_risk": 0.41 }
+  ],
+  "blast_radius": [
+    { "id": "sldc", "score": 1.0 },
+    { "id": "sub", "score": 0.82 },
+    { "id": "tel", "score": 0.78 },
+    { "id": "hos", "score": 0.74 },
+    { "id": "water", "score": 0.68 },
+    { "id": "tower", "score": 0.62 },
+    { "id": "rail", "score": 0.58 },
+    { "id": "emg", "score": 0.58 },
+    { "id": "amb", "score": 0.52 },
+    { "id": "dc", "score": 0.55 },
+    { "id": "pump", "score": 0.48 },
+    { "id": "bank", "score": 0.41 }
+  ],
+  "actions": [
+    { "id": "act_backup_hospital", "priority": "P1", "title": "Activate hospital backup power", "description": "Switch regional hospital to diesel generator and battery UPS to preserve ICU and surgical loads.", "est_risk_reduction_pct": 18 },
+    { "id": "act_isolate_telecom", "priority": "P1", "title": "Isolate telecom exchange fault domain", "description": "Segment the affected exchange from the core fiber ring to prevent control-plane propagation.", "est_risk_reduction_pct": 15 },
+    { "id": "act_manual_water", "priority": "P2", "title": "Reroute water plant to manual control", "description": "Shift the treatment plant to manual dosing and open the secondary intake valve.", "est_risk_reduction_pct": 10 },
+    { "id": "act_deploy_cow", "priority": "P2", "title": "Dispatch mobile cell-on-wheels unit", "description": "Deploy a COW to maintain public safety communications near the incident zone.", "est_risk_reduction_pct": 8 },
+    { "id": "act_failover_dc", "priority": "P3", "title": "Failover data center to secondary site", "description": "Redirect government data center workloads to the secondary availability zone.", "est_risk_reduction_pct": 7 }
+  ],
+  "brief": {
+    "situation": "A simulated ransomware event has compromised the State Load Dispatch Center, the primary power-grid control node. Projected impact propagates to the telecom, health, water, transport, data, public, and finance sectors within 95 minutes.",
+    "projection": "Without mitigation, 3 critical nodes and 9 total services are projected to degrade. The Regional Hospital reaches high risk by T+45 minutes. Cascade depth is 4 layers, with the Regional Bank as the deepest projected impact at T+95.",
+    "recommendation": "Prioritize P1 actions: activate hospital backup power and isolate the telecom exchange fault domain. These two actions are projected to reduce composite risk by approximately 27% and delay hospital impact to T+90.",
+    "compliance": "This scenario triggers NIS2 cross-sector dependency reporting and CISD critical-infrastructure notification thresholds. Simulated values are illustrative and require validation against live telemetry before operational use."
+  }
+}

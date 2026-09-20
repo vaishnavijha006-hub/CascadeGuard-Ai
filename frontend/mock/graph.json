@@ -1,0 +1,33 @@
+{
+  "nodes": [
+    { "id": "sldc", "label": "State Load Dispatch Center", "sector": "power", "criticality": 10, "x": 80, "y": 140 },
+    { "id": "sub", "label": "Regional Substation", "sector": "power", "criticality": 8, "x": 320, "y": 80 },
+    { "id": "tel", "label": "Telecom Exchange", "sector": "telecom", "criticality": 9, "x": 560, "y": 80 },
+    { "id": "tower", "label": "Mobile Tower Cluster", "sector": "telecom", "criticality": 5, "x": 800, "y": 40 },
+    { "id": "hos", "label": "Regional Hospital", "sector": "health", "criticality": 9, "x": 800, "y": 180 },
+    { "id": "amb", "label": "Ambulance Dispatch", "sector": "health", "criticality": 6, "x": 1040, "y": 180 },
+    { "id": "water", "label": "Water Treatment Plant", "sector": "water", "criticality": 7, "x": 320, "y": 260 },
+    { "id": "pump", "label": "Water Pump Network", "sector": "water", "criticality": 5, "x": 560, "y": 260 },
+    { "id": "rail", "label": "Rail Control Center", "sector": "transport", "criticality": 7, "x": 80, "y": 360 },
+    { "id": "bank", "label": "Regional Bank", "sector": "finance", "criticality": 6, "x": 1040, "y": 320 },
+    { "id": "dc", "label": "Government Data Center", "sector": "data", "criticality": 8, "x": 560, "y": 360 },
+    { "id": "emg", "label": "Emergency Operations Center", "sector": "public", "criticality": 9, "x": 800, "y": 360 }
+  ],
+  "edges": [
+    { "id": "e1", "source": "sldc", "target": "sub", "type": "power", "weight": 0.9, "delay_min": 15 },
+    { "id": "e2", "source": "sldc", "target": "tel", "type": "power", "weight": 0.85, "delay_min": 20 },
+    { "id": "e3", "source": "sldc", "target": "water", "type": "power", "weight": 0.8, "delay_min": 30 },
+    { "id": "e4", "source": "sldc", "target": "rail", "type": "power", "weight": 0.7, "delay_min": 40 },
+    { "id": "e5", "source": "sub", "target": "hos", "type": "power", "weight": 0.75, "delay_min": 15 },
+    { "id": "e6", "source": "sub", "target": "pump", "type": "power", "weight": 0.6, "delay_min": 20 },
+    { "id": "e7", "source": "tel", "target": "tower", "type": "comms", "weight": 0.8, "delay_min": 15 },
+    { "id": "e8", "source": "tel", "target": "hos", "type": "comms", "weight": 0.7, "delay_min": 15 },
+    { "id": "e9", "source": "tel", "target": "rail", "type": "control", "weight": 0.65, "delay_min": 20 },
+    { "id": "e10", "source": "tel", "target": "dc", "type": "comms", "weight": 0.6, "delay_min": 30 },
+    { "id": "e11", "source": "tower", "target": "amb", "type": "comms", "weight": 0.55, "delay_min": 15 },
+    { "id": "e12", "source": "hos", "target": "amb", "type": "control", "weight": 0.7, "delay_min": 20 },
+    { "id": "e13", "source": "dc", "target": "bank", "type": "data", "weight": 0.75, "delay_min": 30 },
+    { "id": "e14", "source": "dc", "target": "emg", "type": "data", "weight": 0.8, "delay_min": 30 },
+    { "id": "e15", "source": "emg", "target": "bank", "type": "control", "weight": 0.5, "delay_min": 45 }
+  ]
+}

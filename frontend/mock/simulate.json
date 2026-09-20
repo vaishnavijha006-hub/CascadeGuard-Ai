@@ -1,0 +1,30 @@
+{
+  "before": {
+    "risk_score": 62,
+    "high_or_critical": 5,
+    "hospital_impact_min": 45
+  },
+  "after": {
+    "risk_score": 45,
+    "high_or_critical": 2,
+    "hospital_impact_min": 90
+  },
+  "delta": {
+    "risk_pct": -27,
+    "delay_min": 45
+  },
+  "nodes": [
+    { "id": "sldc", "risk": 0.95, "level": "critical", "impact_time_min": 0, "depth": 0, "why": "Initiating asset remains directly affected; mitigation does not reverse the initial compromise." },
+    { "id": "sub", "risk": 0.72, "level": "high", "impact_time_min": 15, "depth": 1, "why": "Substation risk reduced by manual load balancing; stability improved but still degraded." },
+    { "id": "tel", "risk": 0.58, "level": "moderate", "impact_time_min": 35, "depth": 1, "why": "Telecom exchange isolated from fault domain; propagation slowed by 15 minutes." },
+    { "id": "water", "risk": 0.55, "level": "moderate", "impact_time_min": 45, "depth": 1, "why": "Water plant on manual control; dosing stabilized, risk reduced from high to moderate." },
+    { "id": "rail", "risk": 0.45, "level": "moderate", "impact_time_min": 55, "depth": 1, "why": "Rail control risk reduced by backup signaling; dispatchable capacity partially restored." },
+    { "id": "tower", "risk": 0.42, "level": "moderate", "impact_time_min": 50, "depth": 2, "why": "Mobile tower cluster supported by COW unit; coverage maintained at reduced capacity." },
+    { "id": "hos", "risk": 0.52, "level": "moderate", "impact_time_min": 90, "depth": 2, "why": "Hospital on backup power; ICU and surgical loads preserved. Impact delayed from T+45 to T+90." },
+    { "id": "pump", "risk": 0.38, "level": "low", "impact_time_min": 70, "depth": 2, "why": "Pump network on secondary feed; throughput reduced but stable." },
+    { "id": "dc", "risk": 0.48, "level": "moderate", "impact_time_min": 65, "depth": 2, "why": "Data center failed over to secondary site; regional services restored at reduced capacity." },
+    { "id": "amb", "risk": 0.40, "level": "low", "impact_time_min": 85, "depth": 3, "why": "Ambulance dispatch supported by COW and hospital backup; routing delays minimized." },
+    { "id": "emg", "risk": 0.45, "level": "moderate", "impact_time_min": 100, "depth": 3, "why": "EOC receiving feeds from secondary data center; situational awareness partially restored." },
+    { "id": "bank", "risk": 0.30, "level": "low", "impact_time_min": 120, "depth": 4, "why": "Bank clearing on secondary WAN; transactions sustained with minor latency." }
+  ]
+}

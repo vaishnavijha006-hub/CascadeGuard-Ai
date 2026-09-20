@@ -1,0 +1,161 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Dark navy command-center theme (default) */
+    --background: 222 47% 6%;
+    --foreground: 210 30% 92%;
+
+    --card: 222 40% 9%;
+    --card-foreground: 210 30% 92%;
+
+    --popover: 222 44% 10%;
+    --popover-foreground: 210 30% 92%;
+
+    --primary: 187 85% 48%;
+    --primary-foreground: 222 47% 6%;
+
+    --secondary: 222 30% 14%;
+    --secondary-foreground: 210 30% 92%;
+
+    --muted: 222 26% 14%;
+    --muted-foreground: 220 14% 58%;
+
+    --accent: 187 60% 18%;
+    --accent-foreground: 187 85% 70%;
+
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 210 30% 96%;
+
+    --border: 222 22% 17%;
+    --input: 222 22% 17%;
+    --ring: 187 85% 48%;
+
+    /* Risk ramp */
+    --risk-low: 142 64% 45%;
+    --risk-moderate: 43 90% 55%;
+    --risk-high: 25 88% 55%;
+    --risk-critical: 0 78% 56%;
+    --risk-unaffected: 222 8% 42%;
+
+    --chart-1: 187 85% 48%;
+    --chart-2: 142 64% 45%;
+    --chart-3: 43 90% 55%;
+    --chart-4: 25 88% 55%;
+    --chart-5: 0 78% 56%;
+    --chart-6: 222 30% 55%;
+
+    --radius: 0.375rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+}
+
+@layer utilities {
+  .risk-bg-low {
+    background-color: hsl(var(--risk-low));
+  }
+  .risk-bg-moderate {
+    background-color: hsl(var(--risk-moderate));
+  }
+  .risk-bg-high {
+    background-color: hsl(var(--risk-high));
+  }
+  .risk-bg-critical {
+    background-color: hsl(var(--risk-critical));
+  }
+  .risk-bg-unaffected {
+    background-color: hsl(var(--risk-unaffected));
+  }
+  .risk-text-low {
+    color: hsl(var(--risk-low));
+  }
+  .risk-text-moderate {
+    color: hsl(var(--risk-moderate));
+  }
+  .risk-text-high {
+    color: hsl(var(--risk-high));
+  }
+  .risk-text-critical {
+    color: hsl(var(--risk-critical));
+  }
+  .risk-text-unaffected {
+    color: hsl(var(--risk-unaffected));
+  }
+  .risk-border-low {
+    border-color: hsl(var(--risk-low));
+  }
+  .risk-border-moderate {
+    border-color: hsl(var(--risk-moderate));
+  }
+  .risk-border-high {
+    border-color: hsl(var(--risk-high));
+  }
+  .risk-border-critical {
+    border-color: hsl(var(--risk-critical));
+  }
+  .risk-border-unaffected {
+    border-color: hsl(var(--risk-unaffected));
+  }
+}
+
+/* React Flow dark theme overrides */
+.react-flow__attribution {
+  display: none;
+}
+.react-flow__background {
+  background-color: hsl(var(--background));
+}
+.react-flow__edge-path {
+  stroke: hsl(222 22% 30%);
+}
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke: hsl(var(--primary));
+}
+.react-flow__controls {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.react-flow__controls-button {
+  background: hsl(var(--card));
+  border-bottom: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+  fill: hsl(var(--foreground));
+}
+.react-flow__controls-button:hover {
+  background: hsl(var(--accent));
+}
+.react-flow__minimap {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+}
+
+/* Thin scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(222 22% 22%);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(222 22% 28%);
+}
