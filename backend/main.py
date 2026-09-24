@@ -21,24 +21,12 @@ except ImportError:
 
 app = FastAPI(title="CascadeGuard Backend")
 
-# CORS Middleware Configuration for Frontend Integration
-origins = [
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:3001",
-    "https://cascade-guard-ai.vercel.app",
-]
-
-frontend_url = os.getenv("FRONTEND_URL")
-if frontend_url and frontend_url not in origins:
-    origins.append(frontend_url)
-
+# CORS Middleware Configuration for Frontend Integration (Supports all Vercel/Netlify/Localhost origins)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins if os.getenv("FRONTEND_URL") else ["*"],
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
